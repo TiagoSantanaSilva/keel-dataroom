@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= room.name %> — Keel Data Room</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    :root {
+      --keel-navy: #0a1628;
+      --keel-blue: #2563eb;
+    }
+    body {
+      background: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+    .navbar-room {
+      background: var(--keel-navy) !important;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .navbar-room .navbar-brand {
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: white !important;
+    }
+    .file-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      transition: all 0.15s;
+    }
+    .file-card:hover {
+      border-color: var(--keel-blue);
+      box-shadow: 0 2px 8px rgba(37,99,235,0.08);
+    }
+    .btn-keel {
+      background: var(--keel-blue);
+      color: white;
+      border: none;
+      font-weight: 500;
+    }
+    .btn-keel:hover { background: #1d4ed8; color: white; }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-room">
+    <div class="container">
+      <span class="navbar-brand">
+        <i class="bi bi-shield-lock-fill me-2"></i><%= room.name %>
+      </span>
+      <span class="text-light small">
+        <i class="bi bi-person-circle me-1"></i><%= visitorEmail %>
+      </span>
+    </div>
+  </nav>
+
+  <div class="container py-4">
+    <% if (room.description) { %>
+    <div class="mb-4">
+      <p class="text-muted mb-0"><%= room.description %></p>
+    </div>
+    <% } %>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h5 class="fw-bold mb-0" style="color: #0a1628;">
+        <i class="bi bi-files me-2" style="color: #2563eb;"></i><%= documents.length %> document<%= documents.length !== 1 ? 's' : '' %>
+      </h5>
+    </div>
+
+    <% if (documents.length === 0) { %>
+    <div class="text-center py-5">
+      <i class="bi bi-folder-open" style="font-size: 4rem; color: #cbd5e1;"></i>
+      <p class="text-muted mt-3">This data room has no documents yet.</p>
+    </div>
+    <% } else { %>
+    <div class="row g-3">
+      <% documents.forEach(doc => {
+        const ext = doc.original_name.split('.').pop().toLowerCase();
+        const previewable = ['pdf','png','jpg','jpeg','gif','svg','webp'].includes(ext);
+        const iconMap = {
+          pdf: 'bi-filetype-pdf text-danger',
+          png: 'bi-filetype-image text-success', jpg: 'bi-filetype-image text-success',
+          jpeg: 'bi-filetype-image text-success', gif: 'bi-filetype-image text-success',
+          svg: 'bi-filetype-image text-success', webp: 'bi-filetype-image text-success',
+          xlsx: 'bi-filetype-xlsx text-success', xls: 'bi-filetype-xlsx text-success',
+          csv: 'bi-filetype-csv text-success',
+          pptx: 'bi-filetype-pptx text-danger', ppt: 'bi-filetype-pptx text-danger',
+          docx: 'bi-filetype-docx text-primary', doc: 'bi-filetype-doc text-primary',
+          mp4: 'bi-filetype-video text-info', mov: 'bi-filetype-video text-info',
+        };
+        const icon = iconMap[ext] || 'bi-file-earmark text-muted';
+      %>
+      <div class="col-md-6 col-lg-4">
+        <div class="file-card p-3">
+          <div class="d-flex align-items-start mb-2">
+            <i class="bi <%= icon %> me-3" style="font-size: 1.75rem;"></i>
+            <div class="min-width-0 flex-grow-1">
+              <div class="fw-medium" style="font-size: 0.9rem; word-break: break-word;"><%= doc.original_name %></div>
+              <small class="text-muted">
+                <% if (doc.file_size > 1048576) { %><%= (doc.file_size / 1048576).toFixed(1) %> MB
+                <% } else { %><%= (doc.file_size / 1024).toFixed(0) %> KB<% } %>
+              </small>
+            </div>
+          </div>
+          <div class="d-flex gap-2">
+            <a href="/room/<%= room.slug %>/download/<%= doc.id %>" class="btn btn-sm btn-keel flex-grow-1">
+              <i class="bi bi-download me-1"></i>Download
+            </a>
+            <% if (previewable) { %>
+            <a href="/room/<%= room.slug %>/preview/<%= doc.id %>" target="_blank" class="btn btn-sm btn-outline-secondary flex-grow-1">
+              <i class="bi bi-eye me-1"></i>Preview
+            </a>
+            <% } %>
+          </div>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+    <% } %>
+  </div>
+</body>
+</html>

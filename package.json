@@ -1,0 +1,21 @@
+{
+  "name": "keel-dataroom",
+  "version": "1.0.0",
+  "description": "Keel Data Room — secure document sharing with email-gated access and visitor tracking",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "better-sqlite3": "^11.6.0",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.21.0",
+    "express-session": "^1.18.0",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.15",
+    "uuid": "^10.0.0"
+  }
+}
