@@ -27,6 +27,49 @@ npm start
 
 Visit **http://localhost:3000** — create an account, then create your first data room.
 
+## Deploy to Railway (recommended)
+
+1. **Push to GitHub:**
+   ```bash
+   cd ~/keel-dataroom
+   gh repo create keel-dataroom --public --push
+   ```
+   Or create the repo on GitHub.com and run the push commands they give you.
+
+2. **Deploy on Railway:**
+   - Go to [railway.app](https://railway.app) and sign in with GitHub
+   - Click **New Project** → **Deploy from GitHub repo**
+   - Select your `keel-dataroom` repo
+   - Railway auto-detects Node.js — deploys in ~60 seconds
+
+3. **Set environment variables** in Railway dashboard → Variables:
+   ```
+   NODE_ENV=production
+   SESSION_SECRET=<generate a long random string>
+   BASE_URL=https://dataroom.keel.sale
+   SMTP_HOST=smtp.gmail.com
+   SMTP_USER=your-email@gmail.com
+   SMTP_PASS=your-app-password
+   EMAIL_FROM=Keel Data Room <noreply@keel.ai>
+   ```
+
+4. **Add your domain:**
+   - In Railway → Networking → Custom Domain: add `dataroom.keel.sale`
+   - Railway gives you a CNAME target (e.g. `something.up.railway.app`)
+   - At your DNS provider, create a **CNAME record**: `dataroom` → `<railway CNAME target>`
+   - Railway auto-provisions SSL — your site is live at `https://dataroom.keel.sale` within minutes
+
+## Manual deploy (Docker)
+
+```bash
+docker build -t keel-dataroom .
+docker run -p 3000:3000 \
+  -e SESSION_SECRET=... \
+  -e BASE_URL=https://dataroom.keel.sale \
+  -v $(pwd)/data:/app/data \
+  -v $(pwd)/uploads:/app/uploads \
+  keel-dataroom
+
 ## Environment variables (`.env`)
 
 | Variable | Default | Description |
