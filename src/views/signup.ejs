@@ -1,4 +1,4 @@
-<% var body = `
+<% pageTitle = 'Create account' %><%- include('head') %>
 <div class="row justify-content-center" style="margin-top: 60px;">
   <div class="col-md-5">
     <div class="text-center mb-4">
@@ -8,7 +8,7 @@
     </div>
     <div class="card shadow-sm" style="border: none; border-radius: 16px;">
       <div class="card-body p-4">
-        <% if (error) { %>
+        <% if (typeof error !== 'undefined' && error) { %>
           <div class="alert alert-danger d-flex align-items-center" role="alert">
             <i class="bi bi-exclamation-triangle-fill me-2"></i> <%= error %>
           </div>
@@ -40,4 +40,4 @@
     </div>
   </div>
 </div>
-` %><%- include('layout', { title: 'Create account' }) %>
+<%- include('foot') %>

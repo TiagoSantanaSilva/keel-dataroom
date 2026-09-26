@@ -1,4 +1,4 @@
-<% var body = `
+<% pageTitle = room.name %><%- include('head') %>
 <div class="mb-4">
   <a href="/dashboard" class="text-decoration-none text-muted">
     <i class="bi bi-arrow-left me-1"></i>Back to rooms
@@ -6,7 +6,6 @@
 </div>
 
 <div class="row">
-  <!-- Room info + settings -->
   <div class="col-lg-8">
     <div class="card shadow-sm mb-4" style="border: none; border-radius: 16px;">
       <div class="card-body p-4">
@@ -25,7 +24,6 @@
           </form>
         </div>
 
-        <!-- Share link -->
         <div class="p-3 mb-3 rounded-3" style="background: #f0f7ff; border: 1px solid #dbeafe;">
           <label class="fw-medium small text-muted mb-1">Share this link with viewers</label>
           <div class="input-group">
@@ -36,11 +34,10 @@
           </div>
         </div>
 
-        <% if (error) { %>
+        <% if (typeof error !== 'undefined' && error) { %>
           <div class="alert alert-danger"><%= error %></div>
         <% } %>
 
-        <!-- Edit name/description -->
         <form method="POST" action="/dashboard/<%= room.id %>/update" class="row g-2">
           <div class="col-md-8">
             <input type="text" name="name" class="form-control" value="<%= room.name %>" required>
@@ -57,7 +54,6 @@
       </div>
     </div>
 
-    <!-- Upload files -->
     <div class="card shadow-sm mb-4" style="border: none; border-radius: 16px;">
       <div class="card-body p-4">
         <h5 class="fw-bold mb-3" style="color: #0a1628;">
@@ -66,7 +62,7 @@
         <form method="POST" action="/dashboard/<%= room.id %>/upload" enctype="multipart/form-data">
           <div class="mb-3">
             <input type="file" name="file" class="form-control form-control-lg" required>
-            <div class="form-text">PDF, images, presentations, spreadsheets, docs — up to <%= process.env.MAX_FILE_SIZE_MB || 50 %>MB</div>
+            <div class="form-text">PDF, images, presentations, spreadsheets, docs</div>
           </div>
           <button type="submit" class="btn btn-keel">
             <i class="bi bi-upload me-2"></i>Upload File
@@ -75,7 +71,6 @@
       </div>
     </div>
 
-    <!-- Documents list -->
     <div class="card shadow-sm mb-4" style="border: none; border-radius: 16px;">
       <div class="card-body p-4">
         <h5 class="fw-bold mb-3" style="color: #0a1628;">
@@ -88,45 +83,35 @@
             <p class="text-muted mt-2 mb-0">No documents yet. Upload your first file above.</p>
           </div>
         <% } else { %>
-          <div class="list-group list-group-flush">
-            <% documents.forEach(doc => { %>
-            <div class="file-card p-3 mb-2 d-flex justify-content-between align-items-center">
-              <div class="d-flex align-items-center">
-                <i class="bi <%=
-                  doc.file_type.includes('pdf') ? 'bi-filetype-pdf text-danger' :
-                  doc.file_type.includes('image') ? 'bi-filetype-image text-success' :
-                  doc.file_type.includes('sheet') || doc.file_type.includes('excel') ? 'bi-filetype-xlsx text-emerald' :
-                  doc.file_type.includes('presentation') || doc.file_type.includes('powerpoint') ? 'bi-filetype-pptx text-orange' :
-                  doc.file_type.includes('word') || doc.file_type.includes('document') ? 'bi-filetype-docx text-primary' :
-                  'bi-file-earmark text-muted'
-                %> me-3" style="font-size: 1.5rem;"></i>
-                <div>
-                  <div class="fw-medium"><%= doc.original_name %></div>
-                  <small class="text-muted">
-                    <% if (doc.file_size > 1048576) { %>
-                      <%= (doc.file_size / 1048576).toFixed(1) %> MB
-                    <% } else { %>
-                      <%= (doc.file_size / 1024).toFixed(0) %> KB
-                    <% } %>
-                    · <%= new Date(doc.uploaded_at).toLocaleDateString() %>
-                  </small>
-                </div>
+          <% documents.forEach(doc => { %>
+          <div class="file-card p-3 mb-2 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-file-earmark me-3" style="font-size: 1.5rem; color: #64748b;"></i>
+              <div>
+                <div class="fw-medium"><%= doc.original_name %></div>
+                <small class="text-muted">
+                  <% if (doc.file_size > 1048576) { %>
+                    <%= (doc.file_size / 1048576).toFixed(1) %> MB
+                  <% } else { %>
+                    <%= (doc.file_size / 1024).toFixed(0) %> KB
+                  <% } %>
+                  · <%= new Date(doc.uploaded_at).toLocaleDateString() %>
+                </small>
               </div>
-              <form method="POST" action="/dashboard/<%= room.id %>/documents/<%= doc.id %>/delete"
-                    onsubmit="return confirm('Remove this file from the data room?')">
-                <button type="submit" class="btn btn-sm btn-outline-danger">
-                  <i class="bi bi-x-lg"></i>
-                </button>
-              </form>
             </div>
-            <% }) %>
+            <form method="POST" action="/dashboard/<%= room.id %>/documents/<%= doc.id %>/delete"
+                  onsubmit="return confirm('Remove this file from the data room?')">
+              <button type="submit" class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </form>
           </div>
+          <% }) %>
         <% } %>
       </div>
     </div>
   </div>
 
-  <!-- Visitor analytics sidebar -->
   <div class="col-lg-4">
     <div class="card shadow-sm mb-4" style="border: none; border-radius: 16px;">
       <div class="card-body p-4">
@@ -140,12 +125,6 @@
             <p class="text-muted mt-2 mb-0">No visitors yet. Share your data room link!</p>
           </div>
         <% } else { %>
-          <div class="mb-3">
-            <div class="stat-card text-center p-3 mb-3">
-              <div class="display-6 fw-bold" style="color: #2563eb;"><%= visitors.length %></div>
-              <div class="text-muted small">Total visits</div>
-            </div>
-          </div>
           <div class="list-group list-group-flush">
             <% visitors.forEach(v => { %>
             <div class="p-3 border-bottom" style="border-color: #f1f5f9 !important;">
@@ -154,7 +133,7 @@
                      style="width: 36px; height: 36px; min-width: 36px;">
                   <i class="bi bi-person-fill text-muted"></i>
                 </div>
-                <div class="min-width-0">
+                <div>
                   <div class="fw-medium small"><%= v.email %></div>
                   <% if (v.name) { %><div class="text-muted small"><%= v.name %></div><% } %>
                   <div class="text-muted" style="font-size: 0.75rem;">
@@ -171,15 +150,4 @@
   </div>
 </div>
 
-<script>
-function copyUrl() {
-  const input = document.getElementById('shareUrl');
-  input.select();
-  navigator.clipboard.writeText(input.value).then(() => {
-    const btn = input.nextElementSibling;
-    btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Copied!';
-    setTimeout(() => btn.innerHTML = '<i class="bi bi-clipboard me-1"></i>Copy', 2000);
-  });
-}
-</script>
-` %><%- include('layout', { title: room.name }) %>
+<% scripts = ['function copyUrl(){var e=document.getElementById(\"shareUrl\");e.select();navigator.clipboard.writeText(e.value).then(function(){var t=e.nextElementSibling;t.innerHTML=\"<i class=\\\\\"bi bi-check-lg me-1\\\\\"></i>Copied!\";setTimeout(function(){t.innerHTML=\"<i class=\\\\\"bi bi-clipboard me-1\\\\\"></i>Copy\"},2e3)})}'] %><%- include('foot') %>
