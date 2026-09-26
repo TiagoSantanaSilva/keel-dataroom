@@ -6,9 +6,16 @@ RUN npm ci --only=production
 
 FROM node:20-slim
 WORKDIR /app
-RUN mkdir -p uploads data
+
+# Create necessary directories
+RUN mkdir -p data uploads public/assets/icons public/css
+
+# Copy dependencies from builder
 COPY --from=builder /app/node_modules ./node_modules
+
+# Copy application files
 COPY . .
+
 EXPOSE 3000
 ENV NODE_ENV=production
 CMD ["node", "src/index.js"]
