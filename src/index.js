@@ -104,79 +104,78 @@ app.get('/view', (req, res) => {
   res.render('room', { items, visitorEmail: req.session.visitorEmail || '' });
 });
 
-// ─── ADMIN ROUTES ───
+// ─── ADMIN ROUTES (uses :secret param checked internally) ───
 
 // Admin panel
-app.get('/admin/' + ADMIN_SECRET, (req, res) => {
+app.get('/admin/:check', (req, res, next) => {
+  if (req.params.check !== ADMIN_SECRET) return next();
   const db = getDb();
   const items = db.prepare('SELECT * FROM items ORDER BY sort_order ASC, added_at DESC').all();
   const visitors = db.prepare('SELECT * FROM visitors ORDER BY viewed_at DESC').all();
   const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
-  res.render('admin', { items, visitors, shareUrl: baseUrl + '/', error: null, success: null });
+  res.render('admin', {
+    items, visitors, error: null, success: null,
+    shareUrl: baseUrl + '/',
+    adminPrefix: '/admin/' + ADMIN_SECRET,
+  });
 });
 
 // Add a link
-app.post('/admin/' + ADMIN_SECRET + '/add', (req, res) => {
+app.post('/admin/:check/add', (req, res, next) => {
+  if (req.params.check !== ADMIN_SECRET) return next();
   const { name, url, description } = req.body;
   if (!name || !name.trim()) {
     const db = getDb();
     const items = db.prepare('SELECT * FROM items ORDER BY sort_order ASC, added_at DESC').all();
     const visitors = db.prepare('SELECT * FROM visitors ORDER BY viewed_at DESC').all();
     const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
-    return res.render('admin', { items, visitors, shareUrl: baseUrl + '/', error: 'Link name is required.', success: null });
+    return res.render('admin', { items, visitors, error: 'Link name is required.', success: null,
+      shareUrl: baseUrl + '/', adminPrefix: '/admin/' + ADMIN_SECRET });
   }
   if (!url || !url.trim()) {
     const db = getDb();
     const items = db.prepare('SELECT * FROM items ORDER BY sort_order ASC, added_at DESC').all();
     const visitors = db.prepare('SELECT * FROM visitors ORDER BY viewed_at DESC').all();
     const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
-    return res.render('admin', { items, visitors, shareUrl: baseUrl + '/', error: 'URL is required.', success: null });
+    return res.render('admin', { items, visitors, error: 'URL is required.', success: null,
+      shareUrl: baseUrl + '/', adminPrefix: '/admin/' + ADMIN_SECRET });
   }
-
-  // Auto-add https:// if missing
   let finalUrl = url.trim();
-  if (!/^https?:\/\//i.test(finalUrl)) {
-    finalUrl = 'https://' + finalUrl;
-  }
-
+  if (!/^https?:\/\//i.test(finalUrl)) finalUrl = 'https://' + finalUrl;
   const db = getDb();
   db.prepare('INSERT INTO items (name, url, description) VALUES (?, ?, ?)').run(
-    name.trim(),
-    finalUrl,
-    (description || '').trim()
-  );
-
+    name.trim(), finalUrl, (description || '').trim());
   res.redirect('/admin/' + ADMIN_SECRET);
 });
 
 // Delete a link
-app.post('/admin/' + ADMIN_SECRET + '/delete/:id', (req, res) => {
+app.post('/admin/:check/delete/:id', (req, res, next) => {
+  if (req.params.check !== ADMIN_SECRET) return next();
   const db = getDb();
   db.prepare('DELETE FROM items WHERE id = ?').run(req.params.id);
   res.redirect('/admin/' + ADMIN_SECRET);
 });
 
-// Reorder links (simple move up/down via swap)
-app.post('/admin/' + ADMIN_SECRET + '/reorder/:id/:direction', (req, res) => {
+// Reorder links
+app.post('/admin/:check/reorder/:id/:direction', (req, res, next) => {
+  if (req.params.check !== ADMIN_SECRET) return next();
   const db = getDb();
   const item = db.prepare('SELECT * FROM items WHERE id = ?').get(req.params.id);
   if (!item) return res.redirect('/admin/' + ADMIN_SECRET);
-
   const direction = req.params.direction === 'up' ? 'up' : 'down';
   const other = direction === 'up'
     ? db.prepare('SELECT * FROM items WHERE sort_order < ? ORDER BY sort_order DESC LIMIT 1').get(item.sort_order)
     : db.prepare('SELECT * FROM items WHERE sort_order > ? ORDER BY sort_order ASC LIMIT 1').get(item.sort_order);
-
   if (other) {
     db.prepare('UPDATE items SET sort_order = ? WHERE id = ?').run(other.sort_order, item.id);
     db.prepare('UPDATE items SET sort_order = ? WHERE id = ?').run(item.sort_order, other.id);
   }
-
   res.redirect('/admin/' + ADMIN_SECRET);
 });
 
 // Clear all visitors
-app.post('/admin/' + ADMIN_SECRET + '/clear-visitors', (req, res) => {
+app.post('/admin/:check/clear-visitors', (req, res, next) => {
+  if (req.params.check !== ADMIN_SECRET) return next();
   const db = getDb();
   db.prepare('DELETE FROM visitors').run();
   res.redirect('/admin/' + ADMIN_SECRET);
