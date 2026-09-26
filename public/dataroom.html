@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Keel Dataroom - Secure investor documentation and due diligence materials">
+  <title>Keel Dataroom – Investor Documentation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/branding.css">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/keel-logo.svg">
+  <style>
+    /* ── Navigation ── */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-lg);
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: var(--spacing-lg);
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-links a {
+      font-size: 0.95rem;
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-secondary);
+    }
+
+    .nav-links a:hover {
+      color: var(--color-text-primary);
+    }
+
+    /* ── Hero Section ── */
+    .hero {
+      text-align: center;
+      padding: var(--spacing-xl) var(--spacing-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .hero-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto var(--spacing-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-accent-light);
+      border-radius: var(--radius);
+      font-size: 48px;
+    }
+
+    .hero h1 {
+      margin-bottom: var(--spacing-md);
+    }
+
+    .hero > p {
+      font-size: var(--font-size-lg);
+      color: var(--color-text-secondary);
+      max-width: 600px;
+      margin: 0 auto var(--spacing-lg);
+    }
+
+    .hero .cta-group {
+      display: flex;
+      gap: var(--spacing-md);
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: var(--spacing-lg);
+    }
+
+    /* ── Section ── */
+    section {
+      padding: var(--spacing-xl) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    section:last-child {
+      border-bottom: none;
+    }
+
+    .section-header {
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .section-header h2 {
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .section-header p {
+      color: var(--color-text-secondary);
+      font-size: var(--font-size-lg);
+    }
+
+    /* ── Metrics Grid ── */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .metric-card {
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 2.5rem;
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .metric-label {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      font-weight: var(--font-weight-medium);
+    }
+
+    /* ── Document Cards ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--spacing-lg);
+    }
+
+    .doc-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: var(--spacing-lg);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .doc-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-4px);
+      border-color: var(--color-primary);
+    }
+
+    .doc-card-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--color-accent-light);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .doc-card h3 {
+      margin-bottom: var(--spacing-sm);
+      color: var(--color-text-primary);
+    }
+
+    .doc-card p {
+      color: var(--color-text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .doc-link {
+      color: var(--color-accent);
+      font-weight: var(--font-weight-semibold);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      transition: gap 0.2s;
+    }
+
+    .doc-link:hover {
+      gap: var(--spacing-sm);
+    }
+
+    /* ── Features Grid ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--spacing-lg);
+    }
+
+    .feature-card h3 {
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .feature-card p {
+      color: var(--color-text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--color-surface);
+      border-top: 1px solid var(--color-border);
+      padding: var(--spacing-lg) 0;
+      margin-top: var(--spacing-xl);
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+      padding-bottom: var(--spacing-lg);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .footer-section h4 {
+      margin-bottom: var(--spacing-md);
+      color: var(--color-text-primary);
+    }
+
+    .footer-section ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .footer-section a {
+      display: block;
+      margin-bottom: var(--spacing-xs);
+      color: var(--color-text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      color: var(--color-text-muted);
+      font-size: 0.9rem;
+    }
+
+    .footer-bottom a {
+      color: var(--color-text-muted);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      nav {
+        flex-direction: column;
+        gap: var(--spacing-md);
+      }
+
+      .nav-links {
+        gap: var(--spacing-md);
+        font-size: 0.9rem;
+      }
+
+      .hero {
+        padding: var(--spacing-lg);
+      }
+
+      .hero h1 {
+        font-size: var(--font-size-2xl);
+      }
+
+      .hero > p {
+        font-size: var(--font-size-base);
+      }
+
+      .hero .cta-group {
+        flex-direction: column;
+      }
+
+      .hero .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <a href="/" class="keel-logo">
+      <div class="keel-logo-icon">
+        <svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50 15 Q75 25 65 55 Q60 45 50 55 L50 85" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M40 50 Q30 40 35 30" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="50" y1="85" x2="50" y2="95" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span>Keel</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#documents">Documents</a></li>
+      <li><a href="#metrics">Metrics</a></li>
+      <li><a href="#why">Why Keel</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-icon">
+        <svg width="48" height="48" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50 15 Q75 25 65 55 Q60 45 50 55 L50 85" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M40 50 Q30 40 35 30" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="50" y1="85" x2="50" y2="95" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1>Keel Dataroom</h1>
+      <p>Secure, structured documentation for investor due diligence. Everything aligned in one place.</p>
+      <div class="cta-group">
+        <button class="btn btn--primary">Request Access</button>
+        <button class="btn btn--secondary">Learn More</button>
+      </div>
+    </section>
+
+    <!-- Metrics Section -->
+    <section id="metrics">
+      <div class="section-header">
+        <h2>By The Numbers</h2>
+        <p>Keel at a glance</p>
+      </div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-value">$12M</div>
+          <div class="metric-label">Total Deployed Capital</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">450+</div>
+          <div class="metric-label">Active Investors</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">$85K</div>
+          <div class="metric-label">Average Investment</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">98%</div>
+          <div class="metric-label">Investor Retention</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Documents Section -->
+    <section id="documents">
+      <div class="section-header">
+        <h2>Documentation</h2>
+        <p>Navigate investment materials organized by category</p>
+      </div>
+      <div class="cards-grid">
+        <div class="doc-card">
+          <div class="doc-card-icon">📋</div>
+          <h3>Executive Summary</h3>
+          <p>Overview of Keel's vision, market opportunity, and competitive advantage.</p>
+          <a href="#" class="doc-link">View Document →</a>
+        </div>
+        <div class="doc-card">
+          <div class="doc-card-icon">📊</div>
+          <h3>Financial Statements</h3>
+          <p>Audited financials, cap table, and historical performance metrics.</p>
+          <a href="#" class="doc-link">View Documents →</a>
+        </div>
+        <div class="doc-card">
+          <div class="doc-card-icon">🔐</div>
+          <h3>Legal & Compliance</h3>
+          <p>Articles of incorporation, policies, and regulatory documentation.</p>
+          <a href="#" class="doc-link">View Documents →</a>
+        </div>
+        <div class="doc-card">
+          <div class="doc-card-icon">👥</div>
+          <h3>Team & Advisors</h3>
+          <p>Bios, backgrounds, and expertise of leadership and advisory board.</p>
+          <a href="#" class="doc-link">View Profiles →</a>
+        </div>
+        <div class="doc-card">
+          <div class="doc-card-icon">📈</div>
+          <h3>Product & Traction</h3>
+          <p>Product roadmap, user metrics, and demonstrated market validation.</p>
+          <a href="#" class="doc-link">View Metrics →</a>
+        </div>
+        <div class="doc-card">
+          <div class="doc-card-icon">🤝</div>
+          <h3>Investment Terms</h3>
+          <p>SAFE documents, valuation, and key terms for this round.</p>
+          <a href="#" class="doc-link">View Terms →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Why Keel Section -->
+    <section id="why">
+      <div class="section-header">
+        <h2>Why Keel</h2>
+        <p>Structured protection for aligned capital</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card card">
+          <h3>Structural Trust</h3>
+          <p>Moving beyond blind faith. Smart contracts encode investor rights, eliminating ambiguity in founder relationships.</p>
+        </div>
+        <div class="feature-card card">
+          <h3>Aligned Incentives</h3>
+          <p>Founder and investor success are mechanically linked. Transparent mechanisms replace discretionary promises.</p>
+        </div>
+        <div class="feature-card card">
+          <h3>Full Transparency</h3>
+          <p>Real-time visibility into round structure, cap table, and investor composition without fragmentation.</p>
+        </div>
+        <div class="feature-card card">
+          <h3>Onchain Infrastructure</h3>
+          <p>Permanent, verifiable record of every transaction. No gatekeepers, no intermediaries.</p>
+        </div>
+        <div class="feature-card card">
+          <h3>Community Rounds</h3>
+          <p>Enable founders to raise from aligned community members with protection and recourse built-in.</p>
+        </div>
+        <div class="feature-card card">
+          <h3>Governance Ready</h3>
+          <p>Post-raise governance is frictionless. Investor participation, voting, and updates flow through one system.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4>Dataroom</h4>
+          <ul>
+            <li><a href="#documents">Executive Summary</a></li>
+            <li><a href="#documents">Financials</a></li>
+            <li><a href="#documents">Legal</a></li>
+            <li><a href="#documents">Team</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="#">Investment Terms</a></li>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">Contact</a></li>
+            <li><a href="#">Support</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#">About Keel</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Security</a></li>
+            <li><a href="#">Privacy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Keel. Structured protection for aligned capital. | <a href="#">Terms</a> • <a href="#">Privacy</a></p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

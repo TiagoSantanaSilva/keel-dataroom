@@ -1,0 +1,17 @@
+<svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Keel Sailboat Logo -->
+  <defs>
+    <style>
+      .keel-sailboat { stroke: currentColor; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+
+  <!-- Main sail (larger, curved) -->
+  <path class="keel-sailboat" d="M50 15 Q75 25 65 55 Q60 45 50 55 L50 85" stroke-width="4"/>
+
+  <!-- Jib sail (smaller, front) -->
+  <path class="keel-sailboat" d="M40 50 Q30 40 35 30" stroke-width="4"/>
+
+  <!-- Keel (bottom) -->
+  <line class="keel-sailboat" x1="50" y1="85" x2="50" y2="95" stroke-width="3"/>
+</svg>
