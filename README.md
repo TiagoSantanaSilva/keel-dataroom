@@ -1,113 +1,53 @@
 # Keel Data Room
 
-Secure document sharing with email-gated access and visitor tracking — like DocSend, but yours.
+A single-page, email-gated data room. Visitors enter their email to view your documents. You get an email notification every time someone visits.
 
-## Features
+No signups, no logins, no accounts. Just a shareable link and an admin panel to manage files.
 
-- **Email-gated data rooms** — visitors must enter their email to view contents
-- **Unique shareable links** — each data room gets a secure UUID-based URL
-- **Visitor tracking** — see who accessed your data room and when
-- **Email notifications** — get notified when someone enters your data room
-- **Document management** — upload, preview, and organize files per room
-- **Self-hosted** — all data stays on your server
+## How it works
+
+1. **Visitor goes to your URL** → `https://dataroom.keel.sale`
+2. **They enter their email** (validated — must be a real email format)
+3. **They see your documents** — download or preview inline
+4. **You get an email** → "someone@example.com viewed your data room"
+5. **You check visitors** → admin panel at `/admin/YOUR_SECRET`
 
 ## Quick start
 
 ```bash
-# 1. Install dependencies
 npm install
-
-# 2. Copy and edit environment config
 cp .env.example .env
-# Edit .env with your SMTP settings, session secret, etc.
-
-# 3. Start the server
+# Edit .env with your config
 npm start
 ```
 
-Visit **http://localhost:3000** — create an account, then create your first data room.
+## Environment variables
 
-## Deploy to Railway (recommended)
-
-1. **Push to GitHub:**
-   ```bash
-   cd ~/keel-dataroom
-   gh repo create keel-dataroom --public --push
-   ```
-   Or create the repo on GitHub.com and run the push commands they give you.
-
-2. **Deploy on Railway:**
-   - Go to [railway.app](https://railway.app) and sign in with GitHub
-   - Click **New Project** → **Deploy from GitHub repo**
-   - Select your `keel-dataroom` repo
-   - Railway auto-detects Node.js — deploys in ~60 seconds
-
-3. **Set environment variables** in Railway dashboard → Variables:
-   ```
-   NODE_ENV=production
-   SESSION_SECRET=<generate a long random string>
-   BASE_URL=https://dataroom.keel.sale
-   SMTP_HOST=smtp.gmail.com
-   SMTP_USER=your-email@gmail.com
-   SMTP_PASS=your-app-password
-   EMAIL_FROM=Keel Data Room <noreply@keel.ai>
-   ```
-
-4. **Add your domain:**
-   - In Railway → Networking → Custom Domain: add `dataroom.keel.sale`
-   - Railway gives you a CNAME target (e.g. `something.up.railway.app`)
-   - At your DNS provider, create a **CNAME record**: `dataroom` → `<railway CNAME target>`
-   - Railway auto-provisions SSL — your site is live at `https://dataroom.keel.sale` within minutes
-
-## Manual deploy (Docker)
-
-```bash
-docker build -t keel-dataroom .
-docker run -p 3000:3000 \
-  -e SESSION_SECRET=... \
-  -e BASE_URL=https://dataroom.keel.sale \
-  -v $(pwd)/data:/app/data \
-  -v $(pwd)/uploads:/app/uploads \
-  keel-dataroom
-
-## Environment variables (`.env`)
-
-| Variable | Default | Description |
+| Variable | Required | Description |
 |---|---|---|
-| `PORT` | `3000` | Server port |
-| `SESSION_SECRET` | *(random)* | Secret for session cookies — change in production |
-| `DATABASE_PATH` | `./data/dataroom.db` | SQLite database path |
-| `UPLOAD_DIR` | `./uploads` | File upload directory |
-| `MAX_FILE_SIZE_MB` | `50` | Max upload size per file |
-| `SMTP_HOST` | — | SMTP server hostname |
-| `SMTP_PORT` | `587` | SMTP port |
-| `SMTP_SECURE` | `false` | Use TLS for SMTP |
-| `SMTP_USER` | — | SMTP username/email |
-| `SMTP_PASS` | — | SMTP password or app password |
-| `EMAIL_FROM` | — | From address for emails |
-| `BASE_URL` | `http://localhost:3000` | Your public URL (used in share links and emails) |
+| `ADMIN_SECRET` | ✅ | Your admin panel URL path (keep it secret) |
+| `OWNER_EMAIL` | ✅ | You get notified here when someone visits |
+| `ROOM_TITLE` | — | Your data room name (default: Keel Data Room) |
+| `ROOM_DESC` | — | Short description shown on the page |
+| `SESSION_SECRET` | ✅ | Long random string for session security |
+| `SMTP_HOST` | For email | SMTP server (e.g. smtp.gmail.com) |
+| `SMTP_USER` | For email | SMTP email address |
+| `SMTP_PASS` | For email | SMTP password / app password |
+| `BASE_URL` | ✅ | Your public URL |
+| `MAX_FILE_SIZE_MB` | — | Max upload size (default 50) |
 
-> **Email setup**: Without SMTP, notifications are logged to the console. For Gmail, create an [app password](https://myaccount.google.com/apppasswords). For production, use SendGrid, Mailgun, or Postmark.
+## Deploying on Render
 
-## Usage workflow
+1. Push to GitHub
+2. On Render → New Web Service → connect repo
+3. **Build:** `npm install` / **Start:** `node src/index.js`
+4. Add all env vars in Render's Environment tab
+5. Set custom domain in Render's Settings
 
-1. **Sign up** — create your account at `/signup`
-2. **Create a data room** — name it (e.g. "Q4 2026 Investor Materials")
-3. **Upload documents** — PDFs, images, spreadsheets, presentations
-4. **Share the link** — copy the unique URL from the room editor
-5. **Visitors enter their email** — they see the gate page first
-6. **You get notified** — email arrives with visitor details
-7. **Track visits** — see all visitors and timestamps in the dashboard
+## Deploying on Railway
 
-## Tech stack
-
-- **Node.js** + **Express** — backend
-- **SQLite** (better-sqlite3) — database
-- **EJS** + **Bootstrap 5** — frontend
-- **Multer** — file uploads
-- **Nodemailer** — email notifications
-- **bcrypt** — password hashing
-
-## License
-
-MIT — built for Keel.
+1. Push to GitHub
+2. On Railway → New Project → Deploy from GitHub
+3. Auto-detects Node.js — deploys automatically
+4. Add env vars in Railway's Variables tab
+5. Add custom domain in Railway's Networking tab

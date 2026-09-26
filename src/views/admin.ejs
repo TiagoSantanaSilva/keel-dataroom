@@ -1,0 +1,153 @@
+<% pageTitle = 'Admin' %><%- include('head') %>
+<div class="mb-4">
+  <h2 class="fw-bold" style="color: #0a1628;">
+    <i class="bi bi-shield-lock-fill me-2" style="color: #2563eb;"></i>Admin Panel
+  </h2>
+  <p class="text-muted">Manage your data room, upload files, and track visitors.</p>
+</div>
+
+<!-- Share URL -->
+<div class="p-3 mb-4 rounded-3" style="background: #f0f7ff; border: 1px solid #dbeafe;">
+  <label class="fw-medium small text-muted mb-1">Share this link</label>
+  <div class="input-group">
+    <input type="text" class="form-control bg-white" id="shareUrl" value="<%= shareUrl %>" readonly>
+    <button class="btn btn-keel" onclick="navigator.clipboard.writeText(document.getElementById('shareUrl').value).then(()=>{let b=this;b.innerHTML='<i class=\"bi bi-check-lg me-1\"></i>Copied!';setTimeout(()=>b.innerHTML='<i class=\"bi bi-clipboard me-1\"></i>Copy',2000)})">
+      <i class="bi bi-clipboard me-1"></i>Copy
+    </button>
+  </div>
+</div>
+
+<% if (typeof error !== 'undefined' && error) { %>
+  <div class="alert alert-danger"><%= error %></div>
+<% } %>
+
+<div class="row g-4">
+  <!-- Upload -->
+  <div class="col-md-6">
+    <div class="card shadow-sm h-100" style="border: none; border-radius: 16px;">
+      <div class="card-body p-4">
+        <h5 class="fw-bold mb-3" style="color: #0a1628;">
+          <i class="bi bi-upload me-2" style="color: #2563eb;"></i>Upload Document
+        </h5>
+        <form method="POST" action="<%= adminPrefix %>/upload" enctype="multipart/form-data">
+          <div class="mb-3">
+            <input type="file" name="file" class="form-control form-control-lg" required>
+            <div class="form-text">PDF, images, presentations, spreadsheets, docs</div>
+          </div>
+          <button type="submit" class="btn btn-keel">
+            <i class="bi bi-upload me-2"></i>Upload
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="col-md-6">
+    <div class="card shadow-sm h-100" style="border: none; border-radius: 16px;">
+      <div class="card-body p-4">
+        <h5 class="fw-bold mb-3" style="color: #0a1628;">
+          <i class="bi bi-bar-chart-fill me-2" style="color: #2563eb;"></i>Stats
+        </h5>
+        <div class="row g-3">
+          <div class="col-6">
+            <div class="text-center p-3 rounded-3" style="background: #f0f7ff;">
+              <div class="display-6 fw-bold" style="color: #2563eb;"><%= documents.length %></div>
+              <div class="text-muted small">Documents</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="text-center p-3 rounded-3" style="background: #f0f7ff;">
+              <div class="display-6 fw-bold" style="color: #2563eb;"><%= visitors.length %></div>
+              <div class="text-muted small">Visitors</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Documents list -->
+<div class="card shadow-sm mt-4" style="border: none; border-radius: 16px;">
+  <div class="card-body p-4">
+    <h5 class="fw-bold mb-3" style="color: #0a1628;">
+      <i class="bi bi-file-earmark me-2" style="color: #2563eb;"></i>Documents
+      <span class="badge badge-doc ms-2 rounded-pill"><%= documents.length %></span>
+    </h5>
+    <% if (documents.length === 0) { %>
+      <div class="text-center py-4">
+        <i class="bi bi-file-earmark-plus" style="font-size: 2.5rem; color: #cbd5e1;"></i>
+        <p class="text-muted mt-2 mb-0">No documents yet. Upload a file above.</p>
+      </div>
+    <% } else { %>
+      <% documents.forEach(doc => { %>
+      <div class="file-card p-3 mb-2 d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+          <i class="bi bi-file-earmark me-3" style="font-size: 1.5rem; color: #64748b;"></i>
+          <div>
+            <div class="fw-medium"><%= doc.original_name %></div>
+            <small class="text-muted">
+              <% if (doc.file_size > 1048576) { %><%= (doc.file_size / 1048576).toFixed(1) %> MB
+              <% } else { %><%= (doc.file_size / 1024).toFixed(0) %> KB<% } %>
+              · <%= new Date(doc.uploaded_at).toLocaleDateString() %>
+            </small>
+          </div>
+        </div>
+        <form method="POST" action="<%= adminPrefix %>/delete/<%= doc.id %>"
+              onsubmit="return confirm('Remove this file?')">
+          <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-x-lg"></i></button>
+        </form>
+      </div>
+      <% }) %>
+    <% } %>
+  </div>
+</div>
+
+<!-- Visitors list -->
+<div class="card shadow-sm mt-4" style="border: none; border-radius: 16px;">
+  <div class="card-body p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="fw-bold mb-0" style="color: #0a1628;">
+        <i class="bi bi-people-fill me-2" style="color: #2563eb;"></i>Visitors
+        <span class="badge badge-visitor ms-2 rounded-pill"><%= visitors.length %></span>
+      </h5>
+      <% if (visitors.length > 0) { %>
+      <form method="POST" action="<%= adminPrefix %>/clear-visitors"
+            onsubmit="return confirm('Clear all visitor logs?')">
+        <button type="submit" class="btn btn-sm btn-outline-secondary">
+          <i class="bi bi-trash me-1"></i>Clear
+        </button>
+      </form>
+      <% } %>
+    </div>
+    <% if (visitors.length === 0) { %>
+      <div class="text-center py-4">
+        <i class="bi bi-person-plus" style="font-size: 2.5rem; color: #cbd5e1;"></i>
+        <p class="text-muted mt-2 mb-0">No visitors yet. Share your data room link!</p>
+      </div>
+    <% } else { %>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Email</th>
+              <th>Name</th>
+              <th>Viewed at</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% visitors.forEach(v => { %>
+            <tr>
+              <td class="fw-medium"><%= v.email %></td>
+              <td><%= v.name || '—' %></td>
+              <td class="text-muted small"><%= new Date(v.viewed_at).toLocaleString() %></td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+</div>
+<%- include('foot') %>
