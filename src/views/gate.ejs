@@ -1,43 +1,53 @@
-<% pageTitle = 'Secure Data Room' %><%- include('head') %>
-<div class="row justify-content-center" style="margin-top: 80px;">
+<% pageTitle = 'Keel Data Room' %><%- include('head') %>
+<div class="row justify-content-center" style="margin-top: 60px; margin-bottom: 60px;">
   <div class="col-md-5">
-    <div class="text-center mb-4">
-      <i class="bi bi-lock-fill" style="font-size: 3rem; color: #0a1628; opacity: 0.8;"></i>
-      <h2 class="fw-bold mt-3" style="color: #0a1628;"><%= roomTitle %></h2>
+    <div class="text-center mb-5">
+      <!-- Keel Logo -->
+      <div style="width: 80px; height: 80px; margin: 0 auto 24px; display: flex; align-items: center; justify-content: center; background: #F0EDE4; border-radius: 12px;">
+        <svg width="48" height="48" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50 15 Q75 25 65 55 Q60 45 50 55 L50 85" stroke="#B8944F" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M40 50 Q30 40 35 30" stroke="#B8944F" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="50" y1="85" x2="50" y2="95" stroke="#B8944F" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <h2 class="fw-bold" style="color: var(--keel-text); font-size: 28px; margin-bottom: 8px;"><%= roomTitle %></h2>
       <% if (roomDesc) { %>
-        <p class="text-muted"><%= roomDesc %></p>
+        <p style="color: var(--keel-text-secondary); margin-bottom: 12px;"><%= roomDesc %></p>
       <% } %>
-      <p class="text-muted small mt-2 mb-0">
-        <i class="bi bi-shield-check me-1"></i>Secure data room · Enter your email to access
+      <p class="small" style="color: var(--keel-text-secondary); margin: 0;">
+        Enter your email to access
       </p>
     </div>
-    <div class="card shadow" style="border: none; border-radius: 16px;">
-      <div class="card-body p-4">
+
+    <div class="card" style="border: 1px solid #E5E0D5; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+      <div class="card-body p-5">
         <% if (typeof error !== 'undefined' && error) { %>
-          <div class="alert alert-danger d-flex align-items-center">
+          <div class="alert alert-danger d-flex align-items-center" style="background: #FEE2E2; border: 1px solid #FECACA; color: #991B1B; border-radius: 8px;">
             <i class="bi bi-exclamation-triangle-fill me-2"></i><%= error %>
           </div>
         <% } %>
         <form method="POST" action="/">
-          <div class="mb-3">
-            <label class="form-label fw-medium">Email address</label>
-            <input type="email" name="email" class="form-control form-control-lg"
+          <div class="mb-4">
+            <label class="form-label fw-medium" style="color: var(--keel-text); font-size: 14px;">Email address</label>
+            <input type="email" name="email" class="form-control" style="border: 1px solid #E5E0D5; padding: 12px 16px; border-radius: 8px; font-size: 16px;"
                    placeholder="you@company.com" required autofocus
                    oninvalid="this.setCustomValidity('Please enter a valid email')"
                    oninput="this.setCustomValidity('')">
           </div>
-          <div class="mb-3">
-            <label class="form-label fw-medium">Name <span class="text-muted">(optional)</span></label>
-            <input type="text" name="name" class="form-control" placeholder="Your full name">
+          <div class="mb-4">
+            <label class="form-label fw-medium" style="color: var(--keel-text); font-size: 14px;">Name <span style="color: var(--keel-text-secondary);">(optional)</span></label>
+            <input type="text" name="name" class="form-control" style="border: 1px solid #E5E0D5; padding: 12px 16px; border-radius: 8px;" placeholder="Your full name">
           </div>
-          <button type="submit" class="btn btn-keel w-100 btn-lg">
-            <i class="bi bi-unlock me-2"></i>Access Data Room
+          <button type="submit" class="btn btn-keel w-100 btn-lg" style="padding: 12px; border-radius: 8px; font-size: 16px;">
+            Access Data Room
           </button>
         </form>
       </div>
     </div>
-    <p class="text-center text-muted small mt-3">
-      <i class="bi bi-shield-lock me-1"></i>Your email will be shared with the data room owner
+
+    <p class="text-center small mt-4" style="color: var(--keel-text-secondary); font-size: 13px;">
+      Your email will be shared with the data room owner
     </p>
   </div>
 </div>

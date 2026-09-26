@@ -8,31 +8,36 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <style>
     :root {
-      --keel-navy: #0a1628;
-      --keel-blue: #2563eb;
-      --keel-surface: #f8fafc;
+      --keel-primary: #000000;
+      --keel-accent: #B8944F;
+      --keel-accent-alt: #297C8A;
+      --keel-background: #F8F6F0;
+      --keel-text: #1A1E2F;
+      --keel-text-secondary: #5A5E6F;
     }
     body {
-      background: var(--keel-surface);
+      background: var(--keel-background);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       min-height: 100vh;
+      color: var(--keel-text);
     }
     .navbar-keel {
-      background: var(--keel-navy) !important;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      background: white !important;
+      border-bottom: 1px solid #E5E0D5;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     }
     .navbar-keel .navbar-brand {
       font-weight: 700;
       letter-spacing: -0.02em;
-      color: white !important;
+      color: var(--keel-primary) !important;
     }
     .btn-keel {
-      background: var(--keel-blue);
+      background: var(--keel-primary);
       color: white;
       border: none;
-      font-weight: 500;
+      font-weight: 600;
     }
-    .btn-keel:hover { background: #1d4ed8; color: white; }
+    .btn-keel:hover { background: var(--keel-accent); color: white; }
     .btn-keel-outline {
       border: 1px solid var(--keel-blue);
       color: var(--keel-blue);
