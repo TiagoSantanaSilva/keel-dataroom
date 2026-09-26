@@ -1,0 +1,8 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Keel Sailboat Logo - Solid Black (Frame 40) -->
+  <!-- Upper sail -->
+  <path d="M 50 20 Q 75 32 70 58 Q 65 50 50 58 L 50 85 Q 50 85 50 85 L 50 20" fill="currentColor"/>
+
+  <!-- Lower sail -->
+  <path d="M 42 52 Q 28 42 35 28 Q 42 38 48 50 L 48 70 Q 45 62 42 52" fill="currentColor"/>
+</svg>
