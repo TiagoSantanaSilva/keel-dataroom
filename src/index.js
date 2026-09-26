@@ -58,14 +58,19 @@ app.set('trust proxy', 1);
 
 // ─── PUBLIC ROUTES ───
 
-// Home — email gate
+// Home — serve the Keel dataroom
 app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'public', 'dataroom.html'));
+});
+
+// Legacy email gate (still available at /gate if needed)
+app.get('/gate', (req, res) => {
   if (req.session.hasAccess) return res.redirect('/view');
   res.render('gate', { error: null, email: '' });
 });
 
-// Handle email submission
-app.post('/', (req, res) => {
+// Handle email submission for legacy gate
+app.post('/gate', (req, res) => {
   const { email, name } = req.body;
 
   if (!email || !email.trim()) {
@@ -99,9 +104,9 @@ app.post('/', (req, res) => {
   res.redirect('/view');
 });
 
-// View data room (requires email gate)
+// View gated data room (requires email gate)
 app.get('/view', (req, res) => {
-  if (!req.session.hasAccess) return res.redirect('/');
+  if (!req.session.hasAccess) return res.redirect('/gate');
   const db = getDb();
   const items = db.prepare('SELECT * FROM items ORDER BY sort_order ASC, added_at DESC').all();
   res.render('room', { items, visitorEmail: req.session.visitorEmail || '' });
