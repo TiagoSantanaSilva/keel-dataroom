@@ -25,20 +25,24 @@
       letter-spacing: -0.02em;
       color: white !important;
     }
-    .file-card {
+    .link-card {
       background: white;
       border: 1px solid #e2e8f0;
       border-radius: 12px;
       transition: all 0.15s;
     }
-    .file-card:hover {
+    .link-card:hover {
       border-color: var(--keel-blue);
       box-shadow: 0 2px 8px rgba(37,99,235,0.08);
     }
-    .btn-keel {
-      background: var(--keel-blue);
-      color: white; border: none; font-weight: 500;
+    .link-card a {
+      text-decoration: none;
+      color: inherit;
     }
+    .link-card a:hover .link-title {
+      color: var(--keel-blue);
+    }
+    .btn-keel { background: var(--keel-blue); color: white; border: none; font-weight: 500; }
     .btn-keel:hover { background: #1d4ed8; color: white; }
   </style>
 </head>
@@ -61,56 +65,40 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h5 class="fw-bold mb-0" style="color: #0a1628;">
-        <i class="bi bi-files me-2" style="color: #2563eb;"></i><%= documents.length %> document<%= documents.length !== 1 ? 's' : '' %>
+        <i class="bi bi-link-45deg me-2" style="color: #2563eb;"></i><%= items.length %> link<%= items.length !== 1 ? 's' : '' %>
       </h5>
     </div>
 
-    <% if (documents.length === 0) { %>
+    <% if (items.length === 0) { %>
     <div class="text-center py-5">
-      <i class="bi bi-folder-open" style="font-size: 4rem; color: #cbd5e1;"></i>
-      <p class="text-muted mt-3">This data room has no documents yet.</p>
+      <i class="bi bi-link-45deg" style="font-size: 4rem; color: #cbd5e1;"></i>
+      <p class="text-muted mt-3">This data room has no links yet.</p>
     </div>
     <% } else { %>
     <div class="row g-3">
-      <% documents.forEach(doc => {
-        const ext = doc.original_name.split('.').pop().toLowerCase();
-        const previewable = ['pdf','png','jpg','jpeg','gif','svg','webp'].includes(ext);
-        const iconMap = {
-          pdf: 'bi-filetype-pdf text-danger',
-          png: 'bi-filetype-image text-success', jpg: 'bi-filetype-image text-success',
-          jpeg: 'bi-filetype-image text-success', gif: 'bi-filetype-image text-success',
-          svg: 'bi-filetype-image text-success', webp: 'bi-filetype-image text-success',
-          xlsx: 'bi-filetype-xlsx text-success', xls: 'bi-filetype-xlsx text-success',
-          csv: 'bi-filetype-csv text-success',
-          pptx: 'bi-filetype-pptx text-danger', ppt: 'bi-filetype-pptx text-danger',
-          docx: 'bi-filetype-docx text-primary', doc: 'bi-filetype-doc text-primary',
-          mp4: 'bi-filetype-video text-info', mov: 'bi-filetype-video text-info',
-        };
-        const icon = iconMap[ext] || 'bi-file-earmark text-muted';
-      %>
+      <% items.forEach(item => { %>
       <div class="col-md-6 col-lg-4">
-        <div class="file-card p-3">
-          <div class="d-flex align-items-start mb-2">
-            <i class="bi <%= icon %> me-3" style="font-size: 1.75rem;"></i>
-            <div class="flex-grow-1" style="word-break: break-word;">
-              <div class="fw-medium" style="font-size: 0.9rem;"><%= doc.original_name %></div>
-              <small class="text-muted">
-                <% if (doc.file_size > 1048576) { %><%= (doc.file_size / 1048576).toFixed(1) %> MB
-                <% } else { %><%= (doc.file_size / 1024).toFixed(0) %> KB<% } %>
-              </small>
+        <a href="<%= item.url %>" target="_blank" rel="noopener">
+          <div class="link-card p-4 h-100">
+            <div class="d-flex flex-column h-100">
+              <div class="d-flex align-items-center mb-2">
+                <i class="bi bi-link-45deg me-2" style="font-size: 1.5rem; color: #2563eb;"></i>
+                <span class="link-title fw-bold" style="color: #0a1628; font-size: 1rem;"><%= item.name %></span>
+              </div>
+              <% if (item.description) { %>
+                <p class="text-muted small mb-2"><%= item.description %></p>
+              <% } %>
+              <div class="mt-auto">
+                <span class="text-muted small" style="word-break: break-all;"><%= item.url %></span>
+              </div>
+              <div class="mt-2">
+                <span class="btn btn-sm btn-keel w-100">
+                  <i class="bi bi-box-arrow-up-right me-1"></i>Open
+                </span>
+              </div>
             </div>
           </div>
-          <div class="d-flex gap-2">
-            <a href="/download/<%= doc.id %>" class="btn btn-sm btn-keel flex-grow-1">
-              <i class="bi bi-download me-1"></i>Download
-            </a>
-            <% if (previewable) { %>
-            <a href="/preview/<%= doc.id %>" target="_blank" class="btn btn-sm btn-outline-secondary flex-grow-1">
-              <i class="bi bi-eye me-1"></i>Preview
-            </a>
-            <% } %>
-          </div>
-        </div>
+        </a>
       </div>
       <% }) %>
     </div>

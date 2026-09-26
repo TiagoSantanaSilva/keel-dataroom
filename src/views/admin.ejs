@@ -3,7 +3,7 @@
   <h2 class="fw-bold" style="color: #0a1628;">
     <i class="bi bi-shield-lock-fill me-2" style="color: #2563eb;"></i>Admin Panel
   </h2>
-  <p class="text-muted">Manage your data room, upload files, and track visitors.</p>
+  <p class="text-muted">Manage your links and track visitors.</p>
 </div>
 
 <!-- Share URL -->
@@ -11,7 +11,7 @@
   <label class="fw-medium small text-muted mb-1">Share this link</label>
   <div class="input-group">
     <input type="text" class="form-control bg-white" id="shareUrl" value="<%= shareUrl %>" readonly>
-    <button class="btn btn-keel" onclick="navigator.clipboard.writeText(document.getElementById('shareUrl').value).then(()=>{let b=this;b.innerHTML='<i class=\"bi bi-check-lg me-1\"></i>Copied!';setTimeout(()=>b.innerHTML='<i class=\"bi bi-clipboard me-1\"></i>Copy',2000)})">
+    <button class="btn btn-keel" onclick="navigator.clipboard.writeText(document.getElementById('shareUrl').value).then(()=>{this.innerHTML='<i class=\"bi bi-check-lg me-1\"></i>Copied!';setTimeout(()=>this.innerHTML='<i class=\"bi bi-clipboard me-1\"></i>Copy',2000)})">
       <i class="bi bi-clipboard me-1"></i>Copy
     </button>
   </div>
@@ -22,20 +22,28 @@
 <% } %>
 
 <div class="row g-4">
-  <!-- Upload -->
+  <!-- Add Link -->
   <div class="col-md-6">
     <div class="card shadow-sm h-100" style="border: none; border-radius: 16px;">
       <div class="card-body p-4">
         <h5 class="fw-bold mb-3" style="color: #0a1628;">
-          <i class="bi bi-upload me-2" style="color: #2563eb;"></i>Upload Document
+          <i class="bi bi-link-45deg me-2" style="color: #2563eb;"></i>Add Link
         </h5>
-        <form method="POST" action="<%= adminPrefix %>/upload" enctype="multipart/form-data">
+        <form method="POST" action="<%= adminPrefix %>/add">
           <div class="mb-3">
-            <input type="file" name="file" class="form-control form-control-lg" required>
-            <div class="form-text">PDF, images, presentations, spreadsheets, docs</div>
+            <label class="form-label fw-medium">Name</label>
+            <input type="text" name="name" class="form-control form-control-lg" placeholder="e.g. Investor Deck" required>
           </div>
-          <button type="submit" class="btn btn-keel">
-            <i class="bi bi-upload me-2"></i>Upload
+          <div class="mb-3">
+            <label class="form-label fw-medium">URL</label>
+            <input type="url" name="url" class="form-control form-control-lg" placeholder="https://keel.ai/deck.pdf" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-medium">Description <span class="text-muted">(optional)</span></label>
+            <input type="text" name="description" class="form-control" placeholder="Brief description of this link">
+          </div>
+          <button type="submit" class="btn btn-keel w-100">
+            <i class="bi bi-plus-lg me-2"></i>Add Link
           </button>
         </form>
       </div>
@@ -52,8 +60,8 @@
         <div class="row g-3">
           <div class="col-6">
             <div class="text-center p-3 rounded-3" style="background: #f0f7ff;">
-              <div class="display-6 fw-bold" style="color: #2563eb;"><%= documents.length %></div>
-              <div class="text-muted small">Documents</div>
+              <div class="display-6 fw-bold" style="color: #2563eb;"><%= items.length %></div>
+              <div class="text-muted small">Links</div>
             </div>
           </div>
           <div class="col-6">
@@ -68,36 +76,49 @@
   </div>
 </div>
 
-<!-- Documents list -->
+<!-- Links list -->
 <div class="card shadow-sm mt-4" style="border: none; border-radius: 16px;">
   <div class="card-body p-4">
     <h5 class="fw-bold mb-3" style="color: #0a1628;">
-      <i class="bi bi-file-earmark me-2" style="color: #2563eb;"></i>Documents
-      <span class="badge badge-doc ms-2 rounded-pill"><%= documents.length %></span>
+      <i class="bi bi-link-45deg me-2" style="color: #2563eb;"></i>Your Links
+      <span class="badge bg-primary ms-2 rounded-pill"><%= items.length %></span>
     </h5>
-    <% if (documents.length === 0) { %>
+    <% if (items.length === 0) { %>
       <div class="text-center py-4">
-        <i class="bi bi-file-earmark-plus" style="font-size: 2.5rem; color: #cbd5e1;"></i>
-        <p class="text-muted mt-2 mb-0">No documents yet. Upload a file above.</p>
+        <i class="bi bi-link-45deg" style="font-size: 2.5rem; color: #cbd5e1;"></i>
+        <p class="text-muted mt-2 mb-0">No links yet. Add your first link above.</p>
       </div>
     <% } else { %>
-      <% documents.forEach(doc => { %>
+      <% items.forEach((item, index) => { %>
       <div class="file-card p-3 mb-2 d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center">
-          <i class="bi bi-file-earmark me-3" style="font-size: 1.5rem; color: #64748b;"></i>
+          <div class="me-3">
+            <i class="bi bi-link-45deg" style="font-size: 1.5rem; color: #2563eb;"></i>
+          </div>
           <div>
-            <div class="fw-medium"><%= doc.original_name %></div>
-            <small class="text-muted">
-              <% if (doc.file_size > 1048576) { %><%= (doc.file_size / 1048576).toFixed(1) %> MB
-              <% } else { %><%= (doc.file_size / 1024).toFixed(0) %> KB<% } %>
-              · <%= new Date(doc.uploaded_at).toLocaleDateString() %>
-            </small>
+            <div class="fw-medium"><%= item.name %></div>
+            <a href="<%= item.url %>" target="_blank" class="text-muted small text-decoration-none" style="word-break: break-all;"><%= item.url %></a>
+            <% if (item.description) { %>
+              <div class="text-muted small mt-1"><%= item.description %></div>
+            <% } %>
           </div>
         </div>
-        <form method="POST" action="<%= adminPrefix %>/delete/<%= doc.id %>"
-              onsubmit="return confirm('Remove this file?')">
-          <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-x-lg"></i></button>
-        </form>
+        <div class="d-flex gap-1">
+          <% if (index > 0) { %>
+          <form method="POST" action="<%= adminPrefix %>/reorder/<%= item.id %>/up">
+            <button type="submit" class="btn btn-sm btn-outline-secondary"><i class="bi bi-chevron-up"></i></button>
+          </form>
+          <% } %>
+          <% if (index < items.length - 1) { %>
+          <form method="POST" action="<%= adminPrefix %>/reorder/<%= item.id %>/down">
+            <button type="submit" class="btn btn-sm btn-outline-secondary"><i class="bi bi-chevron-down"></i></button>
+          </form>
+          <% } %>
+          <form method="POST" action="<%= adminPrefix %>/delete/<%= item.id %>"
+                onsubmit="return confirm('Remove this link?')">
+            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-x-lg"></i></button>
+          </form>
+        </div>
       </div>
       <% }) %>
     <% } %>

@@ -2,10 +2,8 @@ require('dotenv').config();
 
 const express = require('express');
 const session = require('express-session');
-const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { v4: uuidv4 } = require('uuid');
 const { getDb } = require('./db');
 const { sendNotification } = require('./email');
 
@@ -18,27 +16,13 @@ const OWNER_EMAIL = process.env.OWNER_EMAIL || '';
 const ROOM_TITLE = process.env.ROOM_TITLE || 'Keel Data Room';
 const ROOM_DESC = process.env.ROOM_DESC || '';
 
-// Ensure uploads directory exists
-const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, '..', 'uploads');
+// Ensure data directory exists
 const dataDir = path.dirname(process.env.DATABASE_PATH || path.join(__dirname, '..', 'data', 'dataroom.db'));
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
-
-// Config multer
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => {
-    cb(null, `${uuidv4()}${path.extname(file.originalname)}`);
-  },
-});
-const upload = multer({
-  storage,
-  limits: { fileSize: (parseInt(process.env.MAX_FILE_SIZE_MB) || 50) * 1024 * 1024 },
-});
 
 // Valid email check
 function isValidEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 }
 
 // View engine
@@ -62,7 +46,6 @@ app.use(session({
 app.use((req, res, next) => {
   res.locals.roomTitle = ROOM_TITLE;
   res.locals.roomDesc = ROOM_DESC;
-  res.locals.pageTitle = '';
   res.locals.currentPath = req.path;
   next();
 });
@@ -85,23 +68,20 @@ app.post('/', (req, res) => {
   if (!email || !email.trim()) {
     return res.render('gate', { error: 'Email is required.', email: '' });
   }
-  if (!isValidEmail(email.trim())) {
+  if (!isValidEmail(email)) {
     return res.render('gate', { error: 'Please enter a valid email address.', email });
   }
 
   const visitorEmail = email.trim().toLowerCase();
   const db = getDb();
 
-  // Record visitor
   db.prepare(
     'INSERT INTO visitors (email, name, ip_address, user_agent) VALUES (?, ?, ?, ?)'
   ).run(visitorEmail, (name || '').trim(), req.ip || '', req.get('User-Agent') || '');
 
-  // Grant access in session
   req.session.hasAccess = true;
   req.session.visitorEmail = visitorEmail;
 
-  // Notify owner
   if (OWNER_EMAIL) {
     const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
     sendNotification(
@@ -120,92 +100,82 @@ app.post('/', (req, res) => {
 app.get('/view', (req, res) => {
   if (!req.session.hasAccess) return res.redirect('/');
   const db = getDb();
-  const documents = db.prepare('SELECT * FROM documents ORDER BY uploaded_at DESC').all();
-  res.render('room', { documents, visitorEmail: req.session.visitorEmail || '' });
-});
-
-// Download document
-app.get('/download/:id', (req, res) => {
-  if (!req.session.hasAccess) return res.redirect('/');
-  const db = getDb();
-  const doc = db.prepare('SELECT * FROM documents WHERE id = ?').get(req.params.id);
-  if (!doc) return res.status(404).send('Document not found');
-  res.download(path.join(uploadDir, doc.file_path), doc.original_name);
-});
-
-// Preview document
-app.get('/preview/:id', (req, res) => {
-  if (!req.session.hasAccess) return res.redirect('/');
-  const db = getDb();
-  const doc = db.prepare('SELECT * FROM documents WHERE id = ?').get(req.params.id);
-  if (!doc) return res.status(404).send('Document not found');
-  const filePath = path.join(uploadDir, doc.file_path);
-  const ext = path.extname(doc.original_name).toLowerCase();
-  if (['.pdf', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp'].includes(ext)) {
-    const mimeMap = {
-      '.pdf': 'application/pdf', '.png': 'image/png', '.jpg': 'image/jpeg',
-      '.jpeg': 'image/jpeg', '.gif': 'image/gif', '.svg': 'image/svg+xml', '.webp': 'image/webp',
-    };
-    res.setHeader('Content-Type', mimeMap[ext] || 'application/octet-stream');
-    res.setHeader('Content-Disposition', 'inline');
-    res.sendFile(filePath);
-  } else {
-    res.download(filePath, doc.original_name);
-  }
+  const items = db.prepare('SELECT * FROM items ORDER BY sort_order ASC, added_at DESC').all();
+  res.render('room', { items, visitorEmail: req.session.visitorEmail || '' });
 });
 
 // ─── ADMIN ROUTES ───
 
-// Admin — manage files and see visitors
+// Admin panel
 app.get('/admin/' + ADMIN_SECRET, (req, res) => {
   const db = getDb();
-  const documents = db.prepare('SELECT * FROM documents ORDER BY uploaded_at DESC').all();
+  const items = db.prepare('SELECT * FROM items ORDER BY sort_order ASC, added_at DESC').all();
   const visitors = db.prepare('SELECT * FROM visitors ORDER BY viewed_at DESC').all();
   const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
-  res.render('admin', {
-    documents,
-    visitors,
-    shareUrl: baseUrl + '/',
-    error: null,
-    adminPrefix: '/admin/' + ADMIN_SECRET,
-  });
+  res.render('admin', { items, visitors, shareUrl: baseUrl + '/', error: null, success: null });
 });
 
-// Admin — upload file
-app.post('/admin/' + ADMIN_SECRET + '/upload', upload.single('file'), (req, res) => {
-  if (!req.file) {
+// Add a link
+app.post('/admin/' + ADMIN_SECRET + '/add', (req, res) => {
+  const { name, url, description } = req.body;
+  if (!name || !name.trim()) {
     const db = getDb();
-    const documents = db.prepare('SELECT * FROM documents ORDER BY uploaded_at DESC').all();
+    const items = db.prepare('SELECT * FROM items ORDER BY sort_order ASC, added_at DESC').all();
     const visitors = db.prepare('SELECT * FROM visitors ORDER BY viewed_at DESC').all();
     const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
-    return res.render('admin', {
-      documents,
-      visitors,
-      shareUrl: baseUrl + '/',
-      error: 'No file selected.',
-      adminPrefix: '/admin/' + ADMIN_SECRET,
-    });
+    return res.render('admin', { items, visitors, shareUrl: baseUrl + '/', error: 'Link name is required.', success: null });
   }
+  if (!url || !url.trim()) {
+    const db = getDb();
+    const items = db.prepare('SELECT * FROM items ORDER BY sort_order ASC, added_at DESC').all();
+    const visitors = db.prepare('SELECT * FROM visitors ORDER BY viewed_at DESC').all();
+    const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
+    return res.render('admin', { items, visitors, shareUrl: baseUrl + '/', error: 'URL is required.', success: null });
+  }
+
+  // Auto-add https:// if missing
+  let finalUrl = url.trim();
+  if (!/^https?:\/\//i.test(finalUrl)) {
+    finalUrl = 'https://' + finalUrl;
+  }
+
   const db = getDb();
-  db.prepare(
-    'INSERT INTO documents (name, original_name, file_path, file_type, file_size) VALUES (?, ?, ?, ?, ?)'
-  ).run(req.file.originalname, req.file.originalname, req.file.filename, req.file.mimetype, req.file.size);
+  db.prepare('INSERT INTO items (name, url, description) VALUES (?, ?, ?)').run(
+    name.trim(),
+    finalUrl,
+    (description || '').trim()
+  );
+
   res.redirect('/admin/' + ADMIN_SECRET);
 });
 
-// Admin — delete document
+// Delete a link
 app.post('/admin/' + ADMIN_SECRET + '/delete/:id', (req, res) => {
   const db = getDb();
-  const doc = db.prepare('SELECT * FROM documents WHERE id = ?').get(req.params.id);
-  if (doc) {
-    const fpath = path.join(uploadDir, doc.file_path);
-    try { fs.unlinkSync(fpath); } catch (e) { /* ignore */ }
-    db.prepare('DELETE FROM documents WHERE id = ?').run(doc.id);
-  }
+  db.prepare('DELETE FROM items WHERE id = ?').run(req.params.id);
   res.redirect('/admin/' + ADMIN_SECRET);
 });
 
-// Admin — clear all visitors
+// Reorder links (simple move up/down via swap)
+app.post('/admin/' + ADMIN_SECRET + '/reorder/:id/:direction', (req, res) => {
+  const db = getDb();
+  const item = db.prepare('SELECT * FROM items WHERE id = ?').get(req.params.id);
+  if (!item) return res.redirect('/admin/' + ADMIN_SECRET);
+
+  const direction = req.params.direction === 'up' ? 'up' : 'down';
+  const other = direction === 'up'
+    ? db.prepare('SELECT * FROM items WHERE sort_order < ? ORDER BY sort_order DESC LIMIT 1').get(item.sort_order)
+    : db.prepare('SELECT * FROM items WHERE sort_order > ? ORDER BY sort_order ASC LIMIT 1').get(item.sort_order);
+
+  if (other) {
+    db.prepare('UPDATE items SET sort_order = ? WHERE id = ?').run(other.sort_order, item.id);
+    db.prepare('UPDATE items SET sort_order = ? WHERE id = ?').run(item.sort_order, other.id);
+  }
+
+  res.redirect('/admin/' + ADMIN_SECRET);
+});
+
+// Clear all visitors
 app.post('/admin/' + ADMIN_SECRET + '/clear-visitors', (req, res) => {
   const db = getDb();
   db.prepare('DELETE FROM visitors').run();
@@ -226,9 +196,9 @@ app.use((req, res) => {
 // ─── START ───
 
 app.listen(PORT, () => {
-  console.log(`\n  📁 Keel Data Room running at http://localhost:${PORT}`);
+  console.log(`\n  🔗 Keel Data Room running at http://localhost:${PORT}`);
   console.log(`  ─────────────────────────────────────`);
   console.log(`  Data Room:   http://localhost:${PORT}`);
   console.log(`  Admin:       http://localhost:${PORT}/admin/${ADMIN_SECRET}`);
-  console.log(`  Owner email: ${OWNER_EMAIL || 'Not set — add OWNER_EMAIL to .env'}\n`);
+  console.log(`  Owner email: ${OWNER_EMAIL || 'Not set'}\n`);
 });

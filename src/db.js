@@ -16,14 +16,13 @@ function getDb() {
 
 function initSchema() {
   db.exec(`
-    CREATE TABLE IF NOT EXISTS documents (
+    CREATE TABLE IF NOT EXISTS items (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
-      original_name TEXT NOT NULL,
-      file_path TEXT NOT NULL,
-      file_type TEXT DEFAULT '',
-      file_size INTEGER DEFAULT 0,
-      uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      url TEXT NOT NULL,
+      description TEXT DEFAULT '',
+      sort_order INTEGER DEFAULT 0,
+      added_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
     CREATE TABLE IF NOT EXISTS visitors (
