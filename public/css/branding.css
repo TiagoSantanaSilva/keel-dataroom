@@ -4,21 +4,22 @@
    ────────────────────────────────────────────────────────────── */
 
 :root {
-  /* ── Core Colors ── */
+  /* ── Keel Brand Colors ── */
   --color-primary: #000000;
   --color-primary-light: #1A1A1A;
-  --color-background: #EEEEEE;
+  --color-background: #F8F6F0;
   --color-surface: #FFFFFF;
 
   /* ── Text Colors ── */
-  --color-text-primary: #000000;
-  --color-text-secondary: #666666;
-  --color-text-muted: #999999;
+  --color-text-primary: #1A1E2F;
+  --color-text-secondary: #5A5E6F;
+  --color-text-muted: #8A8E9E;
 
-  /* ── Interactive Colors ── */
-  --color-accent: #0066FF;
-  --color-accent-light: #E6F0FF;
-  --color-border: #DDDDDD;
+  /* ── Keel Accent Colors ── */
+  --color-accent: #B8944F;
+  --color-accent-alt: #297C8A;
+  --color-accent-light: #F0EDE4;
+  --color-border: #E5E0D5;
 
   /* ── Spacing System ── */
   --spacing-xs: 0.5rem;
